@@ -59,7 +59,7 @@ class Graph {
     int portalCounter = 0;
     int cityCounter = 0;
 
-    ArrayList<Line> lines = new ArrayList();
+    LinkedList<Line> lines = new LinkedList();
 
     Tree getShortestTree() {
         Tree retTree = new Tree(N, M);
@@ -197,7 +197,7 @@ class Tree {
 
 class Forest {
 
-    LinkedList<HashSet<Integer>> trees = new LinkedList();
+    ArrayList<HashSet<Integer>> trees = new ArrayList();
     int elementCount = 0;
 
     HashSet<Integer> getTreeById(int id) {
