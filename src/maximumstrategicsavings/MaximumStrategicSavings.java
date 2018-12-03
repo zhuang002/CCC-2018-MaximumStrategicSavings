@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Scanner;
 
 /**
  *
@@ -38,9 +37,6 @@ public class MaximumStrategicSavings {
             Tree tree = graph.getShortestTree();
 
             long save = graph.getCost() - tree.getCost();
-            if (save == 1) {
-                System.out.println(graph.N + " " + graph.M + " " + graph.P + " " + graph.Q);
-            }
             System.out.println(save);
         } catch (Exception e) {
             System.out.println("IO Error");
@@ -142,9 +138,9 @@ class Tree {
     public Tree(int n, int m) {
         this.N = n;
         this.M = m;
-        for (int i = 0; i < this.forests.length; i++) {
-            this.forests[i] = new Forest();
-        }
+        
+        this.forests[0]=new Forest(this.N);
+        this.forests[1]=new Forest(this.M);
     }
 
     long getCost() {
@@ -156,40 +152,14 @@ class Tree {
             return;
         }
         Forest forest=this.forests[line.idx];
-        HashSet<Integer> tree1 = forest.getTreeById(line.id1);
-        HashSet<Integer> tree2 = forest.getTreeById(line.id2);
+        int tree1 = forest.getRoot(line.id1);
+        int tree2 = forest.getRoot(line.id2);
 
-        if (tree1 != null) {
-            if (tree2 != null) {
-                if (tree1 == tree2) {
-                    return;
-                } else {
-                    if (tree1.size()>=tree2.size()) {
-                        tree1.addAll(tree2);
-                        forest.remove(tree2);
-                    } else {
-                        tree2.addAll(tree1);
-                        forest.remove(tree1);
-                    }
-                }
-            } else {
-                forest.elementCount++;
-                tree1.add(line.id2);
-            }
-        } else {
-            if (tree2 != null) {
-                forest.elementCount++;
-                tree2.add(line.id1);
-            } else {
-                tree1 = new HashSet();
-                tree1.add(line.id1);
-                tree1.add(line.id2);
-                forest.add(tree1);
+        if (tree1==tree2) return;
+         forest.linkNode(tree1, tree2);
 
-            }
-        }
         forest = this.forests[(line.idx + 1) % 2];
-        int linesToAdd = forest.trees.size() + (line.idx == 0 ? M : N) - forest.elementCount();
+        int linesToAdd = forest.treeCount();
         cost += line.cost * linesToAdd;
     }
 
@@ -197,37 +167,38 @@ class Tree {
 
 class Forest {
 
-    ArrayList<HashSet<Integer>> trees = new ArrayList();
-    int elementCount = 0;
+    //ArrayList<HashSet<Integer>> trees = new ArrayList();
+    int[] nodes;
+    int elementCount = 1;
+    int treeCount=0;
 
-    HashSet<Integer> getTreeById(int id) {
-        for (HashSet tree : this.trees) {
-            if (tree.contains(id)) {
-                return tree;
-            }
+
+    public Forest(int n) {
+        nodes=new int[n+1];
+        for (int i=0;i<nodes.length;i++) {
+            nodes[i]=i;
         }
-        return null;
+        this.treeCount=n;
+    }
+    int getRoot(int id) {
+        int node=id;
+        while (nodes[node]!=node)
+            node=nodes[node];
+        return node;
     }
 
-    boolean remove(HashSet<Integer> tree) {
-        return trees.remove(tree);
-    }
 
-    boolean add(HashSet<Integer> tree) {
-        this.elementCount+=tree.size();
-        return trees.add(tree);
+    void linkNode(int node1,int node2) {
+        nodes[node2]=node1;
+        elementCount++;
+        treeCount--;
     }
 
     int treeCount() {
-        return trees.size();
+        return treeCount;
     }
 
     int elementCount() {
-        /*int count = 0;
-        for (HashSet<Integer> tree : trees) {
-            count += tree.size();
-        }
-        return count;*/
         return elementCount;
     }
 }
