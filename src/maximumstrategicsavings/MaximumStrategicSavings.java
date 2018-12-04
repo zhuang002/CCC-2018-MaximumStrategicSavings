@@ -181,10 +181,10 @@ class Forest {
         this.treeCount=n;
     }
     int getRoot(int id) {
-        int node=id;
-        while (nodes[node]!=node)
-            node=nodes[node];
-        return node;
+
+        if (nodes[id]!=id) 
+            nodes[id]=getRoot(nodes[id]);
+        return nodes[id];
     }
 
 
